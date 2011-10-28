@@ -34,21 +34,32 @@ puts "Finding matching nodes, please wait..."
 cmd = "curl -s -k -H \"Accept: yaml\" \"#{puppet_base}#{path}#{search}\""
 ans = %x[#{cmd}]
 nodes = YAML::load(ans)
-node_array = []
-nodes.each do |node|
-	node_url="https://puppet:8140/production/facts/#{node}"
-	node_cmd="curl -s -k -H \"Accept: yaml\" #{node_url}"
-	node_ans= %x[#{node_cmd}]
-	node_array << YAML::load(node_ans)
+nodearr = []
+nodes.sort.each do |node|
+	nodearr.push(node)
 end
+puts nodearr
+puts "Would you like more info on the nodes found? This may take bit longer..."
+puts "(y/n)"
+more=gets.chomp
+if more == "y"
 
-results =[]
-node_array.each do |node|
-	name = node.name
-	facts = node.values
-	ram=facts['memorysize']
-	procs=facts['processorcount']
-	results.push("Host: #{name} RAM: #{ram} ProcessorCores: #{procs}")
+	node_array = []
+	nodes.each do |node|
+		node_url="https://puppet:8140/production/facts/#{node}"
+		node_cmd="curl -s -k -H \"Accept: yaml\" #{node_url}"
+		node_ans= %x[#{node_cmd}]
+		node_array << YAML::load(node_ans)
+	end
+
+	results =[]
+	node_array.each do |node|
+		name = node.name
+		facts = node.values
+		ram=facts['memorysize']
+		procs=facts['processorcount']
+		results.push("Host: #{name} RAM: #{ram} ProcessorCores: #{procs}")
+	end
+	results.sort!
+	puts results
 end
-results.sort!
-puts results
