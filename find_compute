@@ -4,8 +4,8 @@ require 'yaml'
 require 'puppet'
 
 puts "Welcome to the Compute Finder script!"
-puts "This script aims to help you locate compute nodes based on sime simple requirments"
-puts "Such as the minimum amount of RAM, processor cores, or a LSF queue"
+puts "This script aims to help you locate compute nodes based on simple requirements"
+puts "Such as the minimum amount of RAM or # of processor cores"
 puts "---"
 puts "---"
 puts "What minimum amount of ram would you like?"
@@ -29,23 +29,26 @@ end
 puppet_base = "https://puppet:8140"
 path="/production/facts_search/search?"
 
+
+puts "Finding matching nodes, please wait..."
 cmd = "curl -s -k -H \"Accept: yaml\" \"#{puppet_base}#{path}#{search}\""
 ans = %x[#{cmd}]
 nodes = YAML::load(ans)
 node_array = []
 nodes.each do |node|
-	node_array.push(node)
-#	node_url="https://puppet:8140/production/facts/#{node}"
-#	node_cmd="curl -s -k -H \"Accept: yaml\" #{node_url}"
-#	node_ans= %x[#{node_cmd}]
-#	node_array << YAML::load(node_ans)
+	node_url="https://puppet:8140/production/facts/#{node}"
+	node_cmd="curl -s -k -H \"Accept: yaml\" #{node_url}"
+	node_ans= %x[#{node_cmd}]
+	node_array << YAML::load(node_ans)
 end
-puts node_array.sort
 
-#node_array.each do |node|
-#	name = node.name
-#	facts = node.values
-#	ram=facts['memorysize']
-#	procs=facts['processorcount']
-#	puts "#{name} RAM: #{ram} ProcessorCores: #{procs}"
-#end
+results =[]
+node_array.each do |node|
+	name = node.name
+	facts = node.values
+	ram=facts['memorysize']
+	procs=facts['processorcount']
+	results.push("Host: #{name} RAM: #{ram} ProcessorCores: #{procs}")
+end
+results.sort!
+puts results
