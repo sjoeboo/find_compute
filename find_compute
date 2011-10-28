@@ -26,6 +26,10 @@ if procs !=""
 	search << "&facts.processorcount.ge=#{procs}"
 end
 
+if (procs == "" and mem == "" )
+	puts "You must specify some requirments!"
+	exit
+end
 puppet_base = "https://puppet:8140"
 path="/production/facts_search/search?"
 
