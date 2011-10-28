@@ -1,37 +1,22 @@
 #!/usr/bin/env ruby
-#
-#find_compute
-#script to find compute nodes based on some user defined facts
-#pulls info from puppets inventory service
 
 require 'yaml'
 require 'puppet'
-#We will need to ask teh user what they want to search on...
-#At least X RAM (memorysize in GB)
-#At least Y Cores
-#Part of  queue?
-#Must be compute_node = true
 
-#Now, setup the url to query:
 puppet_base = "https://puppet:8140"
 path="/production/facts_search/search?facts.memorysize.ge=64"
 
-#cmd = "curl -s -k -H \"Accept: yaml\" https://puppet:8140/production/facts_search/search?facts.memorysize.ge=64&facts.compute_node.eq=true"
 cmd = "curl -s -k -H \"Accept: yaml\" #{puppet_base}#{path}"
 ans = %x[#{cmd}]
 nodes = YAML::load(ans)
 node_array = []
 nodes.each do |node|
-#	We now have the nodes in YAML.
-#	I guess now we query for each one to get the RAM/CPU/LSF queues info?
-#	puts node
 	node_url="https://puppet:8140/production/facts/#{node}"
 	node_cmd="curl -s -k -H \"Accept: yaml\" #{node_url}"
 	node_ans= %x[#{node_cmd}]
 	node_array << YAML::load(node_ans)
 end
 node_array.each do |node|
-	#puts node.name
 	name = node.name
 	facts = node.values
 	ram=facts['memorysize']
