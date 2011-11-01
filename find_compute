@@ -62,7 +62,8 @@ if more == "y"
 		facts = node.values
 		ram=facts['memorysize']
 		procs=facts['processorcount']
-		results.push("Host: #{name} RAM: #{ram} ProcessorCores: #{procs}")
+		lsf=facts['lsf_queues']
+		results.push("Host: #{name} RAM: #{ram} ProcessorCores: #{procs} LSF Queues: #{lsf}") 
 	end
 	results.sort!
 	puts results
