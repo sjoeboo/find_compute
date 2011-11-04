@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+require 'puppet'
+
+sleep 1
+
+#search ="facts.compute_node=true"
+search =""
+puppet_base = "https://puppet:8140"
+path="/production/facts_search/search?"
+
+
+puts "Finding matching nodes, please wait..."
+cmd = "curl -s -k -H \"Accept: yaml\" \"#{puppet_base}#{path}#{search}\""
+ans = %x[#{cmd}]
+nodes = YAML::load(ans)
+nodearr = []
+nodes.sort.each do |node|
+	nodearr.push(node)
+end
+#puts nodearr
+#puts "Would you like more info on the nodes found? This may take bit longer..."
+#puts "(y/n)"
+#more=gets.chomp
+#if more == "y"
+
+#	node_array = []
+	nodes.sort.each do |node|
+		node_url="https://puppet:8140/production/facts/#{node}"
+		node_cmd="curl -s -k -H \"Accept: yaml\" #{node_url}"
+		node_ans= %x[#{node_cmd}]
+		output=File.new('out.yml','a')
+                output.puts node_ans
+                output.close
+		#node_array << YAML::load(node_ans)
+	end
+
+#	results =[]
+#	node_array.each do |node|
+#		name = node.name
+#		facts = node.values
+#		output=File.new('out.yml','a')
+#		output.puts YAML.dump(facts)
+#		output.close
+#		ram=facts['memorysize']
+#		procs=facts['processorcount']
+#		lsf=facts['lsf_queues']
+#		results.push("Host: #{name} RAM: #{ram} ProcessorCores: #{procs} LSF Queues: #{lsf}") 
+#	end
+#	results.sort!
+	
+#	output= File.new('out.yml','w')
+	
+
+#	output.puts YAML.dump(results)
+#end
